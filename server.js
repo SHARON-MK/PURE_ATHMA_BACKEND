@@ -9,7 +9,7 @@ const userController = require("./controller/userController")
 const dbConfig = require('./config/dbConfig')
 require('dotenv').config();
 
-app.use(cors({ origin: 'http://localhost:3000', }));
+app.use(cors());
 app.use(express.json())
 
 const userRoute = require("./routes/userRoute")
@@ -22,7 +22,7 @@ app.use('/api/trainer', trainerRoute)
 // edit
 const io = socketIo(server, { 
     cors: { 
-      origin: ['http://localhost:3000'], 
+      origin: "*", 
     } 
   });
   app.use("/socket.io", express.static("node_modules/socket.io-client/dist"));
@@ -60,7 +60,6 @@ io.on('connection', (socket) => {
     })
 
     socket.on('chat', async (data) => {
-        console.log('ureeeeeeeeeeeeeeeeeeeeeeeeeekaaaaaaaaaaaaaaaaaa')
         const { room, text, sender } = data;
         await userController.chatHistory(room, text, sender)
         io.to(room).emit('chat', { text, sender, room });
