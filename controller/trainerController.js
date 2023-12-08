@@ -14,6 +14,15 @@ const randomstring = require('randomstring')
 const sharp = require('sharp')
 const path = require('path');
 
+const mongoose = require('mongoose');
+
+const sanitizeId = (Id) => {
+    if (!mongoose.Types.ObjectId.isValid(Id)) {
+        throw new Error('Invalid id');
+    }
+    return new mongoose.Types.ObjectId(Id);
+};
+
 
 const cloudinary = require('cloudinary').v2
 cloudinary.config({
@@ -24,8 +33,6 @@ cloudinary.config({
 
 const register = async (req, res) => {
     try {
-        console.log('in controller')
-        console.log('File Object:', req.file);
         console.log(req.body)
 
         // trim part- if the obj passed id undefined or empty trim cant perform and throw error to frontend directly - so check firts
@@ -185,7 +192,7 @@ const googleLogin = async (req, res) => {
 
 const authorization = async (req, res) => {
     try {
-        const trainer = await trainerModel.findOne({ _id: req.body.trainerId })
+        const trainer = await trainerModel.findOne({ _id: sanitizeId(req.body.trainerId) })
         if (!trainer) {
             return res.status(200).send({ message: "trainer does not exist", success: false })
         } else {
@@ -293,8 +300,7 @@ const courseRegistration = async (req, res) => {
 
 const editProfile = async (req, res) => {
     try {
-        const id = req.body.trainerId
-        console.log('id', req.body.trainerId)
+        const id = sanitizeId(req.body.trainerId)
         const name = req.body.name
         const age = req.body.age
         const city = req.body.city
@@ -353,7 +359,7 @@ const editProfile = async (req, res) => {
 
 const listServices = async (req, res) => {
     try {
-        const trainerId = req.body.trainerId
+        const trainerId = sanitizeId(req.body.trainerId)
         const courseList = await courseModel.find({ trainer_id: trainerId })
         if (!courseList) {
             return res.status(200).send({ message: 'No courses exist', success: false })
@@ -372,7 +378,7 @@ const courseEdit = async (req, res) => {
             if (!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
                 return res.status(200).send({ message: 'jpg, jpeg, png, or gif image is only allowed!', success: false })
             }
-            
+
             const image = req.file.filename;
             const imagePath = path.join(__dirname, "../uploads/courseImages/", image);
             const resizedImagePath = path.join(__dirname, "../uploads/corseImagesResized/", image);
@@ -384,11 +390,11 @@ const courseEdit = async (req, res) => {
             const data = await cloudinary.uploader.upload(resizedImagePath);
             const imageURL = data.secure_url;
 
-            await courseModel.updateOne({ _id: req.body.courseId }, { $set: { image: imageURL } });
+            await courseModel.updateOne({ _id: sanitizeId(req.body.courseId) }, { $set: { image: imageURL } });
         }
 
         await courseModel.updateOne(
-            { _id: req.body.courseId },
+            { _id: sanitizeId(req.body.courseId) },
             {
                 $set: {
                     course_name: req.body.course_name,
@@ -410,7 +416,7 @@ const courseEdit = async (req, res) => {
 
 const courseDeletion = async (req, res) => {
     try {
-        const courseId = req.body.courseId;
+        const courseId = sanitizeId(req.body.courseId);
         await courseModel.deleteOne({ _id: courseId });
         const newCouresList = await courseModel.find()
 
@@ -423,7 +429,7 @@ const courseDeletion = async (req, res) => {
 
 const getReviews = async (req, res) => {
     try {
-        const courseId = req.query.courseId
+        const courseId = sanitizeId(req.query.courseId)
         const reviewData = await ratingModel.findOne({ course_id: courseId })
         if (reviewData) {
             return res.status(200).send({ message: 'Reviews fetched', success: true, data: reviewData })
@@ -635,7 +641,7 @@ const getAllUsersForNotification = async (req, res) => {
 const getTrainerName = async (req, res) => {
     try {
 
-        const trainerId = req.body.trainerId
+        const trainerId = sanitizeId(req.body.trainerId)
         const trainerData = await trainerModel.findOne({_id:trainerId})
         const trainerName = trainerData.name
         return res.status(200).send({ message: 'trainer name fetched', success: true, data:trainerName });
