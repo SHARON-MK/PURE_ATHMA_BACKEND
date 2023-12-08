@@ -417,7 +417,7 @@ const verifyPayment = async (req, res) => {
     try {
         const details = (req.body)
         const crypto = require("crypto");
-        let hmac = crypto.createHmac("sha256", process.env.razorpayKey)
+        let hmac = crypto.createHmac("sha256", process.env.RAZORPAYKEY)
         hmac.update(details.payment.razorpay_order_id + '|' + details.payment.razorpay_payment_id)
         hmac = hmac.digest('hex')
 
