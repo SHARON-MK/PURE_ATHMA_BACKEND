@@ -251,6 +251,10 @@ const courseRegistration = async (req, res) => {
             return res.status(200).send({ message: 'No image uploaded', success: 'image' })
         }
 
+        if (!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+            return res.status(200).send({ message: 'jpg, jpeg, png, or gif image is only allowed!', success: false })
+        }
+
         const image = req.file.filename;
         const imagePath = path.join(__dirname, "../uploads/courseImages/", image);
         const resizedImagePath = path.join(__dirname, "../uploads/corseImagesResized/", image);
@@ -364,6 +368,11 @@ const listServices = async (req, res) => {
 const courseEdit = async (req, res) => {
     try {
         if (req.file) {
+
+            if (!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+                return res.status(200).send({ message: 'jpg, jpeg, png, or gif image is only allowed!', success: false })
+            }
+            
             const image = req.file.filename;
             const imagePath = path.join(__dirname, "../uploads/courseImages/", image);
             const resizedImagePath = path.join(__dirname, "../uploads/corseImagesResized/", image);
