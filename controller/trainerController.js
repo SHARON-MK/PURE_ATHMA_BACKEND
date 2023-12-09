@@ -652,6 +652,41 @@ const getTrainerName = async (req, res) => {
     }
 }
 
+const listClients = async (req, res) => {
+    try {
+        console.log('reached');
+        const trainerId = sanitizeId(req.body.trainerId);
+        console.log(trainerId)
+        const clientsdata = await OrderModel.find({ trainer_id: trainerId })
+
+        const totalAmount = await OrderModel.aggregate([
+            {
+                $match: {
+                    trainer_id: trainerId
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: '$amount' }
+                }
+            }
+        ]);
+
+
+        if (totalAmount.length > 0) {
+            return res.status(200).send({ clients: clientsdata, totalAmount: totalAmount[0].totalAmount, message: 'Total amount fetched', success: true });
+        } else {
+            return res.status(200).send({ clients: clientsdata, totalAmount: 0, message: 'No matching documents found', success: true });
+        }
+
+      
+    } catch (error) {
+        console.log('Error in backend of fetching reviews', error);
+        res.status(500).send({ message: 'something went wrong', success: false });
+    }
+};
+
 module.exports = {
     register,
     login,
@@ -672,5 +707,6 @@ module.exports = {
     updateNotificationStatus,
     getClassDetails,
     getAllUsersForNotification,
-    getTrainerName
+    getTrainerName,
+    listClients
 }

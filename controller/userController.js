@@ -371,6 +371,9 @@ const placeOrder = async (req, res) => {
         const coursename = purchasedCourse.course_name;
         const category = purchasedCourse.category;
 
+        const userData = await userModel.findOne({_id:sanitizeId(req.body.userId)})
+        const userName = userData.name
+
         // const currentDate = new Date();
         // const currentMonthName = currentDate.toLocaleString('default', { month: 'long' });
         // const currentYear = currentDate.getFullYear();
@@ -383,6 +386,9 @@ const placeOrder = async (req, res) => {
         const newOrder = new orderModel({
             course_id: req.body.courseId,
             user_id: req.body.userId,
+            username: userName,
+            trainer_id: purchasedCourse.trainer_id,
+            amount: purchasedCourse.amount,
             course_name: coursename,
             category: category,
             status: 'pending',

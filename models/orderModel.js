@@ -9,6 +9,14 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    username:{
+        type: String,
+        required: true
+    },
+    trainer_id:{
+        type: String,
+        required: true
+    },
     course_name:{
         type: String,
         required: false
@@ -24,6 +32,10 @@ const orderSchema = new mongoose.Schema({
     paymentId:{
         type: String,
         required:false
+    },
+    amount: {
+        type: Number,
+        required: true
     },
     month:{
         type: String,
